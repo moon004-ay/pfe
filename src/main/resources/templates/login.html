@@ -1,0 +1,1120 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <title>Connexion - BEA Gestion Projets</title>
+    <style>
+      /* =====================================================
+      LOGIN.CSS — Banque Extérieure d'Algérie
+      Glassmorphism + background image
+      Classes originales conservées à 100%
+      ===================================================== */
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        align-items: stretch;
+        overflow: hidden;
+        position: fixed;
+        inset: 0;
+      }
+
+      /* ══════════════════════════════════════
+   PAGE ENTIÈRE = image de fond
+   ══════════════════════════════════════ */
+      .login-page {
+        display: flex;
+        width: 100%;
+        min-height: 100vh;
+        position: relative;
+
+        /* background-image injecté par Thymeleaf via th:style sur la div */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
+
+      /* Overlay sombre global */
+      .login-page::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(5, 18, 50, 0.52);
+        backdrop-filter: blur(1px);
+        z-index: 0;
+      }
+
+      /* ══════════════════════════════════════
+   PANNEAU GAUCHE — transparent, logo + slogan
+   ══════════════════════════════════════ */
+      .left-panel {
+        flex: 1;
+        background: transparent !important; /* écrase l'ancien #0d2b6e */
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-end;
+        padding: 0 0 56px 60px;
+        position: relative;
+        z-index: 1;
+        overflow: visible;
+      }
+
+      /* Supprime les pseudo-éléments cercles de l'ancien design */
+      .left-panel::before,
+      .left-panel::after {
+        display: none;
+      }
+
+      /* Container logo + texte en bas à gauche */
+      .logo-wrap {
+        width: auto;
+        height: auto;
+        border-radius: 0;
+        background: transparent;
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        margin-bottom: 20px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Le SVG globe devient le logo BEA */
+      .logo-wrap svg {
+        filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.5));
+      }
+
+      /* Nom arabe de la banque */
+      .bank-name-ar {
+        font-size: 22px;
+        color: #ffffff !important;
+        font-weight: 700;
+        margin-bottom: 6px;
+        position: relative;
+        z-index: 1;
+        text-align: left;
+        direction: rtl;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Nom français de la banque */
+      .bank-name-fr {
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.65) !important;
+        text-align: left;
+        position: relative;
+        z-index: 1;
+        letter-spacing: 0.3px;
+      }
+
+      /* Séparateur — remplacé par un trait lumineux discret */
+      .divider {
+        width: 60px;
+        height: 2px;
+        background: rgba(91, 184, 232, 0.6);
+        border-radius: 2px;
+        margin: 18px 0;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Tagline */
+      .tagline {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.45);
+        text-align: left;
+        line-height: 1.6;
+        position: relative;
+        z-index: 1;
+        max-width: 260px;
+      }
+
+      /* Slogan principal visible (décommenté dans le HTML via tagline) */
+      .bank-name-ar + .divider + .tagline,
+      .tagline {
+        font-size: 28px;
+        font-weight: 700;
+        color: #ffffff;
+        line-height: 1.25;
+        letter-spacing: -0.3px;
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+        max-width: 420px;
+      }
+
+      /* ══════════════════════════════════════
+   PANNEAU DROIT — GLASSMORPHISM
+   ══════════════════════════════════════ */
+      .right-panel {
+        width: 440px;
+        min-height: 100vh;
+        background: rgba(
+          255,
+          255,
+          255,
+          0.08
+        ) !important; /* glass transparent */
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border-left: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: -8px 0 40px rgba(0, 0, 0, 0.25);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 44px;
+        position: relative;
+        z-index: 1;
+        overflow-y: auto;
+
+        animation: slideIn 0.5s ease forwards;
+      }
+
+      @keyframes slideIn {
+        from {
+          opacity: 0;
+          transform: translateX(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* ── Badge "Accès sécurisé" ── */
+      .login-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        background: rgba(91, 184, 232, 0.12) !important;
+        border: 1px solid rgba(91, 184, 232, 0.35) !important;
+        border-radius: 20px;
+        padding: 5px 16px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #7ecff0 !important;
+        letter-spacing: 0.5px;
+        margin-bottom: 28px;
+        text-transform: uppercase;
+      }
+
+      .login-badge-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #5bb8e8;
+        box-shadow: 0 0 6px #5bb8e8;
+        animation: blink 2s infinite;
+      }
+
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      /* ── Titre ── */
+      .login-title {
+        font-size: 28px;
+        font-weight: 700;
+        color: #ffffff !important;
+        margin-bottom: 6px;
+        text-align: center;
+        letter-spacing: -0.3px;
+      }
+
+      /* ── Sous-titre ── */
+      .login-subtitle {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.5) !important;
+        margin-bottom: 36px;
+        text-align: center;
+        line-height: 1.55;
+      }
+
+      /* ── Labels ── */
+      .form-label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.55) !important;
+        margin-bottom: 7px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      /* ── Inputs ── */
+      .form-input {
+        width: 100%;
+        height: 48px;
+        padding: 0 14px 0 44px;
+        background: rgba(255, 255, 255, 0.08) !important;
+        border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #ffffff !important;
+        outline: none;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s,
+          background 0.2s;
+      }
+
+      .form-input::placeholder {
+        color: rgba(255, 255, 255, 0.3) !important;
+      }
+
+      .form-input:focus {
+        border-color: #5bb8e8 !important;
+        background: rgba(255, 255, 255, 0.12) !important;
+        box-shadow: 0 0 0 3px rgba(91, 184, 232, 0.2);
+      }
+
+      /* Icônes dans les inputs */
+      .input-icon svg path,
+      .input-icon svg circle,
+      .input-icon svg rect {
+        stroke: rgba(255, 255, 255, 0.5);
+      }
+
+      /* Icône œil */
+      .show-pwd {
+        opacity: 0.4;
+        transition: opacity 0.2s;
+      }
+      .show-pwd:hover {
+        opacity: 0.85;
+      }
+
+      /* ── Bouton Connexion ── */
+      .btn-login {
+        width: 100%;
+        height: 50px;
+        background: linear-gradient(
+          135deg,
+          #1a4ba8 0%,
+          #5bb8e8 100%
+        ) !important;
+        color: #fff !important;
+        border: none !important;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        transition: all 0.2s;
+        margin-top: 10px;
+        box-shadow: 0 4px 20px rgba(91, 184, 232, 0.3);
+        text-transform: uppercase;
+      }
+
+      .btn-login:hover {
+        background: linear-gradient(
+          135deg,
+          #5bb8e8 0%,
+          #1a4ba8 100%
+        ) !important;
+        box-shadow: 0 6px 28px rgba(91, 184, 232, 0.45);
+        transform: translateY(-1px);
+      }
+
+      .btn-login:active {
+        transform: translateY(0);
+      }
+
+      /* ── Séparateur footer ── */
+      .login-footer {
+        margin-top: 28px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .footer-line {
+        flex: 1;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.12);
+      }
+
+      .footer-text {
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.3);
+        white-space: nowrap;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      /* ── Note sécurité ── */
+      .security-note {
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(91, 184, 232, 0.07) !important;
+        border: 1px solid rgba(91, 184, 232, 0.2);
+        border-radius: 8px;
+        padding: 10px 14px;
+        width: 100%;
+      }
+
+      .security-note span {
+        font-size: 10px;
+        color: rgba(255, 255, 255, 0.4) !important;
+        line-height: 1.5;
+      }
+
+      /* ── Info box (comptes démo) ── */
+      .info-box {
+        background: rgba(91, 184, 232, 0.08) !important;
+        border: 1px solid rgba(91, 184, 232, 0.25) !important;
+        border-radius: 8px;
+        padding: 12px;
+        margin-top: 20px;
+        width: 100%;
+      }
+
+      .info-box-title {
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.8) !important;
+        margin-bottom: 8px;
+        font-size: 12px;
+      }
+
+      .info-box-content {
+        color: rgba(255, 255, 255, 0.5) !important;
+        line-height: 1.6;
+        font-size: 11px;
+      }
+
+      .info-box-content strong {
+        color: rgba(255, 255, 255, 0.8) !important;
+      }
+
+      /* ── Messages erreur / succès ── */
+      .error-message {
+        background: rgba(255, 60, 60, 0.15);
+        color: #ff9999;
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-size: 12px;
+        text-align: center;
+        border: 1px solid rgba(255, 60, 60, 0.3);
+        width: 100%;
+        animation: shake 0.3s ease;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        25% {
+          transform: translateX(-6px);
+        }
+        75% {
+          transform: translateX(6px);
+        }
+      }
+
+      .success-message {
+        background: rgba(0, 200, 100, 0.12);
+        color: #7fffb2;
+        padding: 10px 14px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-size: 12px;
+        text-align: center;
+        border: 1px solid rgba(0, 200, 100, 0.25);
+        width: 100%;
+      }
+
+      /* ══════════════════════════════════════
+   RESPONSIVE mobile
+   ══════════════════════════════════════ */
+      @media (max-width: 768px) {
+        .left-panel {
+          display: none;
+        }
+        .right-panel {
+          width: 100% !important;
+          border-left: none;
+          background: rgba(5, 18, 50, 0.575) !important;
+        }
+      }
+
+      /* ══════════════════════════════════════
+   CORRECTION POSITIONNEMENT ICÔNES
+   ══════════════════════════════════════ */
+
+      /* Conteneur relatif pour positionner les icônes */
+      .input-wrap {
+        position: relative !important;
+        display: flex !important;
+        align-items: center !important;
+      }
+
+      /* Icône gauche (user / cadenas) — absolue à gauche */
+      .input-icon {
+        position: absolute !important;
+        left: 14px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        pointer-events: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 2 !important;
+      }
+
+      /* Couleur icônes en blanc semi-transparent */
+      .input-icon svg path,
+      .input-icon svg circle,
+      .input-icon svg rect {
+        stroke: rgba(37, 13, 83, 0.788) !important;
+      }
+
+      /* Padding gauche pour ne pas couvrir le texte */
+      .form-input {
+        padding-left: 44px !important;
+        padding-right: 14px !important;
+      }
+
+      /* Padding droit pour le champ mot de passe (icône œil) */
+      #password {
+        padding-right: 44px !important;
+      }
+
+      /* Icône œil — absolue à droite */
+      .show-pwd {
+        position: absolute !important;
+        right: 14px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        cursor: pointer !important;
+        opacity: 0.45 !important;
+        transition: opacity 0.2s !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        z-index: 2 !important;
+      }
+      .show-pwd:hover {
+        opacity: 0.9 !important;
+      }
+
+      /* ══════════════════════════════════════
+   FIX FINAL — icônes DANS les champs
+   ══════════════════════════════════════ */
+
+      .form-group {
+        width: 100%;
+        margin-bottom: 18px;
+      }
+
+      .input-wrap {
+        position: relative !important;
+        width: 100% !important;
+      }
+
+      /* Icône gauche DANS le champ */
+      .input-wrap .input-icon {
+        position: absolute !important;
+        left: 13px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        pointer-events: none !important;
+        z-index: 3 !important;
+        display: flex !important;
+        align-items: center !important;
+      }
+
+      /* Input : padding gauche = place pour l'icône */
+      .input-wrap .form-input {
+        width: 100% !important;
+        padding-left: 42px !important;
+        padding-right: 14px !important;
+        position: relative !important;
+        z-index: 1 !important;
+      }
+
+      /* Input mot de passe : padding droit = place pour l'œil */
+      .input-wrap #password {
+        padding-right: 44px !important;
+      }
+
+      /* Icône œil DANS le champ à droite */
+      .input-wrap .show-pwd {
+        position: absolute !important;
+        right: 13px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 3 !important;
+        cursor: pointer !important;
+        opacity: 0.5 !important;
+        display: flex !important;
+        align-items: center !important;
+      }
+      .input-wrap .show-pwd:hover {
+        opacity: 1 !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      class="login-page"
+      th:style="'background-image: url(/images/login_bg_bea.jpg)'">
+      <div class="left-panel">
+        <div class="logo-wrap"></div>
+
+        <div class="divider"></div>
+        <div class="tagline">Une Banque à la hauteur de vos aspirations</div>
+      </div>
+
+      <div class="right-panel">
+        <div class="login-badge">
+          <div class="login-badge-dot"></div>
+          Accès sécurisé
+        </div>
+        <div class="login-title">Connexion</div>
+        <div class="login-subtitle">
+          Entrez vos identifiants pour accéder au portail
+        </div>
+        <div id="messageArea"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)" style="width: 100%">
+          <div class="form-group">
+            <label class="form-label">Matricule</label>
+            <div class="input-wrap">
+              <div class="input-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <circle
+                    cx="12"
+                    cy="8"
+                    r="4"
+                    stroke="#B0BDD0"
+                    stroke-width="1.5" />
+                  <path
+                    d="M4 20c0-4 3.6-7 8-7s8 3 8 7"
+                    stroke="#B0BDD0"
+                    stroke-width="1.5"
+                    stroke-linecap="round" />
+                </svg>
+              </div>
+              <input
+                class="form-input"
+                type="text"
+                id="matricule"
+                placeholder="Ex: ADM001"
+                required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Mot de passe</label>
+            <div class="input-wrap">
+              <div class="input-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <rect
+                    x="3"
+                    y="11"
+                    width="18"
+                    height="11"
+                    rx="2"
+                    stroke="#B0BDD0"
+                    stroke-width="1.5" />
+                  <path
+                    d="M7 11V7a5 5 0 0110 0v4"
+                    stroke="#B0BDD0"
+                    stroke-width="1.5"
+                    stroke-linecap="round" />
+                </svg>
+              </div>
+              <input
+                class="form-input"
+                type="password"
+                id="password"
+                placeholder="••••••••••"
+                required />
+              <div class="show-pwd" onclick="togglePassword()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                    stroke="#8A9FBF"
+                    stroke-width="1.5" />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                    stroke="#8A9FBF"
+                    stroke-width="1.5" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-login" id="submitBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3"
+                stroke="white"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+            SE CONNECTER
+          </button>
+        </form>
+
+        <div class="login-footer">
+          <div class="footer-line"></div>
+          <div class="footer-text">Connexion sécurisée</div>
+          <div class="footer-line"></div>
+        </div>
+
+        <div class="security-note" style="margin-top: 12px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+              stroke="#5A78AA"
+              stroke-width="1.5"
+              fill="none" />
+            <path
+              d="M9 12l2 2 4-4"
+              stroke="#5A78AA"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+          <span
+            >Vos données sont protégées. Ne partagez jamais vos
+            identifiants.</span
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- ✅ Change-password modal (shown on first login) -->
+    <div
+      id="changePwdModal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(10, 20, 60, 0.55);
+        backdrop-filter: blur(4px);
+        align-items: center;
+        justify-content: center;
+      ">
+      <div
+        style="
+          background: #fff;
+          border-radius: 20px;
+          width: 440px;
+          max-width: 94vw;
+          box-shadow: 0 24px 80px rgba(10, 20, 80, 0.25);
+          overflow: hidden;
+        ">
+        <!-- Header -->
+        <div
+          style="
+            background: linear-gradient(135deg, #0d2b6e, #1e40af);
+            padding: 24px 28px;
+          ">
+          <div
+            style="
+              color: #fff;
+              font-size: 18px;
+              font-weight: 800;
+              margin-bottom: 4px;
+            ">
+            🔐 Première connexion
+          </div>
+          <div style="color: #93c5fd; font-size: 13px">
+            Pour votre sécurité, veuillez définir un nouveau mot de passe
+            personnel.
+          </div>
+        </div>
+        <!-- Body -->
+        <div style="padding: 28px">
+          <div id="changePwdMsg" style="margin-bottom: 12px"></div>
+
+          <div style="margin-bottom: 16px">
+            <label
+              style="
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                color: #4a6080;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 6px;
+              ">
+              Nouveau mot de passe <span style="color: #e05a2b">*</span>
+            </label>
+            <div style="position: relative">
+              <input
+                type="password"
+                id="newPwd"
+                placeholder="Minimum 6 caractères"
+                style="
+                  width: 100%;
+                  padding: 11px 42px 11px 14px;
+                  border: 1.5px solid #d8e6f2;
+                  border-radius: 10px;
+                  font-size: 14px;
+                  color: #1a2d5a;
+                  outline: none;
+                  box-sizing: border-box;
+                "
+                oninput="checkPwdStrength(this.value)" />
+              <span
+                onclick="togglePwd('newPwd', 'eyeNew')"
+                style="
+                  position: absolute;
+                  right: 13px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  cursor: pointer;
+                ">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  id="eyeNew">
+                  <path
+                    d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                    stroke="#8A9FBF"
+                    stroke-width="1.5" />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                    stroke="#8A9FBF"
+                    stroke-width="1.5" />
+                </svg>
+              </span>
+            </div>
+            <!-- Strength bar -->
+            <div
+              style="
+                margin-top: 6px;
+                height: 4px;
+                background: #e8eef5;
+                border-radius: 4px;
+                overflow: hidden;
+              ">
+              <div
+                id="strengthBar"
+                style="
+                  height: 4px;
+                  width: 0%;
+                  border-radius: 4px;
+                  transition:
+                    width 0.3s,
+                    background 0.3s;
+                "></div>
+            </div>
+            <div
+              id="strengthLabel"
+              style="font-size: 10px; color: #8a9fbf; margin-top: 3px"></div>
+          </div>
+
+          <div style="margin-bottom: 24px">
+            <label
+              style="
+                display: block;
+                font-size: 11px;
+                font-weight: 700;
+                color: #4a6080;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                margin-bottom: 6px;
+              ">
+              Confirmer le mot de passe <span style="color: #e05a2b">*</span>
+            </label>
+            <div style="position: relative">
+              <input
+                type="password"
+                id="confirmPwd"
+                placeholder="Répéter le mot de passe"
+                style="
+                  width: 100%;
+                  padding: 11px 42px 11px 14px;
+                  border: 1.5px solid #d8e6f2;
+                  border-radius: 10px;
+                  font-size: 14px;
+                  color: #1a2d5a;
+                  outline: none;
+                  box-sizing: border-box;
+                "
+                oninput="checkMatch()" />
+              <span
+                onclick="togglePwd('confirmPwd', 'eyeConfirm')"
+                style="
+                  position: absolute;
+                  right: 13px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  cursor: pointer;
+                ">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  id="eyeConfirm">
+                  <path
+                    d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                    stroke="#8A9FBF"
+                    stroke-width="1.5" />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="3"
+                    stroke="#8A9FBF"
+                    stroke-width="1.5" />
+                </svg>
+              </span>
+            </div>
+            <div
+              id="matchMsg"
+              style="font-size: 11px; margin-top: 4px; height: 16px"></div>
+          </div>
+
+          <button
+            id="changePwdBtn"
+            onclick="submitNewPassword()"
+            style="
+              width: 100%;
+              padding: 13px;
+              background: #0d2b6e;
+              color: #fff;
+              border: none;
+              border-radius: 10px;
+              cursor: pointer;
+              font-size: 14px;
+              font-weight: 700;
+              transition: background 0.15s;
+            ">
+            ✓ Confirmer le nouveau mot de passe
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ── Pending login data (set after successful auth, before pwd change) ──
+      let _pendingLoginData = null;
+
+      async function handleLogin(event) {
+        event.preventDefault();
+        const matricule = document.getElementById("matricule").value.trim();
+        const password = document.getElementById("password").value;
+        const btn = document.getElementById("submitBtn");
+        btn.innerHTML = "Connexion...";
+        btn.disabled = true;
+        try {
+          const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ matricule, password }),
+          });
+          const data = await res.json();
+          if (res.ok && data.token) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data));
+
+            // ✅ First login: show change-password modal instead of redirecting
+            if (data.mustChangePassword) {
+              _pendingLoginData = data;
+              openChangePwdModal();
+              return; // don't redirect yet
+            }
+
+            showMsg("Connexion réussie ! Redirection...", "success");
+            setTimeout(() => (window.location.href = "/dashboard"), 800);
+          } else {
+            showMsg(
+              data.message || "Matricule ou mot de passe incorrect",
+              "error",
+            );
+          }
+        } catch (e) {
+          showMsg("Erreur de connexion au serveur", "error");
+        } finally {
+          btn.innerHTML =
+            '<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4M10 17l5-5-5-5M15 12H3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg> SE CONNECTER';
+          btn.disabled = false;
+        }
+      }
+
+      // ── Change-password modal ─────────────────────────────────────────────
+      function openChangePwdModal() {
+        const modal = document.getElementById("changePwdModal");
+        modal.style.display = "flex";
+        document.getElementById("newPwd").focus();
+      }
+
+      function checkPwdStrength(val) {
+        const bar = document.getElementById("strengthBar");
+        const label = document.getElementById("strengthLabel");
+        let score = 0;
+        if (val.length >= 6) score++;
+        if (val.length >= 10) score++;
+        if (/[A-Z]/.test(val)) score++;
+        if (/[0-9]/.test(val)) score++;
+        if (/[^A-Za-z0-9]/.test(val)) score++;
+        const levels = [
+          { w: "0%", bg: "#e8eef5", txt: "" },
+          { w: "25%", bg: "#ef4444", txt: "Très faible" },
+          { w: "50%", bg: "#f59e0b", txt: "Faible" },
+          { w: "75%", bg: "#3b82f6", txt: "Moyen" },
+          { w: "90%", bg: "#22c55e", txt: "Fort" },
+          { w: "100%", bg: "#16a34a", txt: "Très fort" },
+        ];
+        const l = levels[Math.min(score, 5)];
+        bar.style.width = l.w;
+        bar.style.background = l.bg;
+        label.textContent = l.txt;
+        label.style.color = l.bg;
+        checkMatch();
+      }
+
+      function checkMatch() {
+        const a = document.getElementById("newPwd").value;
+        const b = document.getElementById("confirmPwd").value;
+        const el = document.getElementById("matchMsg");
+        if (!b) {
+          el.textContent = "";
+          return;
+        }
+        if (a === b) {
+          el.textContent = "✓ Les mots de passe correspondent";
+          el.style.color = "#16a34a";
+        } else {
+          el.textContent = "✗ Les mots de passe ne correspondent pas";
+          el.style.color = "#ef4444";
+        }
+      }
+
+      function togglePwd(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        if (input.type === "password") {
+          input.type = "text";
+          icon.innerHTML =
+            '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22" stroke="#5BB8E8" stroke-width="1.5" stroke-linecap="round"/>';
+        } else {
+          input.type = "password";
+          icon.innerHTML =
+            '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#8A9FBF" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke="#8A9FBF" stroke-width="1.5"/>';
+        }
+      }
+
+      async function submitNewPassword() {
+        const newPwd = document.getElementById("newPwd").value;
+        const confirmPwd = document.getElementById("confirmPwd").value;
+        const msgEl = document.getElementById("changePwdMsg");
+        const btn = document.getElementById("changePwdBtn");
+
+        if (newPwd.length < 6) {
+          msgEl.innerHTML =
+            '<div style="background:#fee;color:#c00;padding:9px 12px;border-radius:8px;font-size:13px">Le mot de passe doit contenir au moins 6 caractères.</div>';
+          return;
+        }
+        if (newPwd !== confirmPwd) {
+          msgEl.innerHTML =
+            '<div style="background:#fee;color:#c00;padding:9px 12px;border-radius:8px;font-size:13px">Les mots de passe ne correspondent pas.</div>';
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Enregistrement...";
+        msgEl.innerHTML = "";
+
+        try {
+          const res = await fetch("/api/auth/change-password", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+            body: JSON.stringify({
+              matricule: _pendingLoginData.matricule,
+              newPassword: newPwd,
+            }),
+          });
+          const data = await res.json();
+
+          if (res.ok) {
+            msgEl.innerHTML =
+              '<div style="background:#e6f9ee;color:#1a7a40;padding:9px 12px;border-radius:8px;font-size:13px">✅ Mot de passe mis à jour ! Redirection...</div>';
+            // Update local storage so mustChangePassword is no longer true
+            const user = JSON.parse(localStorage.getItem("user") || "{}");
+            user.mustChangePassword = false;
+            localStorage.setItem("user", JSON.stringify(user));
+            setTimeout(() => (window.location.href = "/dashboard"), 1200);
+          } else {
+            msgEl.innerHTML = `<div style="background:#fee;color:#c00;padding:9px 12px;border-radius:8px;font-size:13px">${data.message || "Erreur serveur"}</div>`;
+            btn.disabled = false;
+            btn.textContent = "✓ Confirmer le nouveau mot de passe";
+          }
+        } catch (e) {
+          msgEl.innerHTML =
+            '<div style="background:#fee;color:#c00;padding:9px 12px;border-radius:8px;font-size:13px">Erreur réseau.</div>';
+          btn.disabled = false;
+          btn.textContent = "✓ Confirmer le nouveau mot de passe";
+        }
+      }
+
+      // ── Original password toggle for login form ──────────────────────────
+      function togglePassword() {
+        const p = document.getElementById("password");
+        const icon = document.getElementById("eyeIcon");
+        if (p.type === "password") {
+          p.type = "text";
+          icon.innerHTML =
+            '<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22" stroke="#5BB8E8" stroke-width="1.5" stroke-linecap="round"/>';
+        } else {
+          p.type = "password";
+          icon.innerHTML =
+            '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="#8A9FBF" stroke-width="1.5"/><circle cx="12" cy="12" r="3" stroke="#8A9FBF" stroke-width="1.5"/>';
+        }
+      }
+
+      function showMsg(msg, type) {
+        const area = document.getElementById("messageArea");
+        area.innerHTML = `<div class="${type}-message">${msg}</div>`;
+        if (type !== "success") setTimeout(() => (area.innerHTML = ""), 5000);
+      }
+
+      // Already logged in? redirect
+      if (localStorage.getItem("token")) window.location.href = "/dashboard";
+    </script>
+  </body>
+</html>
