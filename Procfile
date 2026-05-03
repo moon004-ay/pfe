@@ -1,0 +1,1 @@
+web: java -jar target/gestion-1.0.0.jar
